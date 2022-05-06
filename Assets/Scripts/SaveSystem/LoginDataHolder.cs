@@ -65,6 +65,7 @@ namespace AnotherMatch3.SaveSystem
             {
                 CreateAndCacheJsonData();           //if there is no json means you probably login for the first time ever 
                 OnFirstLoginToday?.Invoke();        //(theoretically, cause in real life we will get json-like fields from database, and if field is empty, means u arent registered)
+                CheckCurrentSeasonCoins();
                 return;
             }
 
@@ -79,32 +80,11 @@ namespace AnotherMatch3.SaveSystem
                 //should it be like if u skip one day streak will decrease to zero again
                 //i guess its better since its DAILY <- bonus, but havent seen this in rules so idk
 
-                var currentYear = DateTime.Now.Year;
-                var currentMonth = DateTime.Now.Month;
-                var currentDay = DateTime.Now.Day;
-
-                if(currentMonth >= (int)Seasons.Spring && currentMonth < (int)Seasons.Summer) //Spring
-                {
-                    OnDailyCoinsUpdate?.Invoke(CalculateDailyCoins(currentYear, currentMonth, currentDay, (int)Seasons.Spring));
-                }
-                else if(currentMonth >= (int)Seasons.Summer && currentMonth < (int)Seasons.Autumn) //Summer
-                {
-                    OnDailyCoinsUpdate?.Invoke(CalculateDailyCoins(currentYear, currentMonth, currentDay, (int)Seasons.Summer));
-                }
-                else if(currentMonth >= (int)Seasons.Autumn && currentMonth < (int)Seasons.Winter) //Autumn
-                {
-                    OnDailyCoinsUpdate?.Invoke(CalculateDailyCoins(currentYear, currentMonth, currentDay, (int)Seasons.Autumn));
-                }
-                else //Winter
-                {
-                    OnDailyCoinsUpdate?.Invoke(CalculateDailyCoins(currentYear, currentMonth, currentDay, (int)Seasons.Winter));
-                }
-                
+                CheckCurrentSeasonCoins();
 
                 File.WriteAllText(fullPath, JsonConvert.SerializeObject(newDailyLoginData, Formatting.Indented));
             }
         }
-
 
         [ContextMenu("Create Cached JSON Data")]
         private void CreateAndCacheJsonData()
@@ -119,6 +99,30 @@ namespace AnotherMatch3.SaveSystem
 
             File.WriteAllText(fullPath, JsonConvert.SerializeObject(dailyData, Formatting.Indented)); //Newtonsoft is a bro while JsonUtility isnt
             //File.WriteAllText(path, JsonUtility.ToJson(dailyData, true)); //this was not working, imagine JsonUtility cant serialize default struct bruh moment
+        }
+
+        private void CheckCurrentSeasonCoins()
+        {
+            var currentYear = DateTime.Now.Year;
+            var currentMonth = DateTime.Now.Month;
+            var currentDay = DateTime.Now.Day;
+
+            if(currentMonth >= (int)Seasons.Spring && currentMonth < (int)Seasons.Summer) //Spring
+            {
+                OnDailyCoinsUpdate?.Invoke(CalculateDailyCoins(currentYear, currentMonth, currentDay, (int)Seasons.Spring));
+            }
+            else if(currentMonth >= (int)Seasons.Summer && currentMonth < (int)Seasons.Autumn) //Summer
+            {
+                OnDailyCoinsUpdate?.Invoke(CalculateDailyCoins(currentYear, currentMonth, currentDay, (int)Seasons.Summer));
+            }
+            else if(currentMonth >= (int)Seasons.Autumn && currentMonth < (int)Seasons.Winter) //Autumn
+            {
+                OnDailyCoinsUpdate?.Invoke(CalculateDailyCoins(currentYear, currentMonth, currentDay, (int)Seasons.Autumn));
+            }
+            else //Winter
+            {
+                OnDailyCoinsUpdate?.Invoke(CalculateDailyCoins(currentYear, currentMonth, currentDay, (int)Seasons.Winter));
+            }
         }
 
         private int CalculateDailyCoins(int currentYear, int currentMonth, int currentDay, int seasonToCalculate)
